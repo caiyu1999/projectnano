@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传</title>
+    <!-- Boxicons 作为备用方案 -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        :root {
+            --background-color: #000000;
+            --border-color: #555555;
+            --text-color: #eeeeee;
+            --primary-color: #8a96ff;
+            --drop-zone-bg: #1a1a1a;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        h1.main-title {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            background: linear-gradient(to bottom, #cccccc, #777777);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .upload-window {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 15px;
+            background-color: var(--drop-zone-bg);
+            padding: 15px;
+            border: 2px dashed var(--border-color);
+            min-height: 400px;
+        }
+        
+        .grid-container.drag-over {
+            border-color: var(--primary-color);
+            background-color: #2a2a2a;
+        }
+
+        .grid-item {
+            aspect-ratio: 1 / 1;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .grid-item.empty:hover {
+            background-color: #2f2f2f;
+        }
+        
+        .grid-item.filled {
+            background-color: #252525;
+            cursor: default;
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-color);
+        }
+
+        .file-icon img {
+            width: 100%;
+            height: 100%;
+            /* 使用 filter 属性来给 SVG 图片上色，使其符合主题 */
+            filter: invert(67%) sepia(49%) saturate(4177%) hue-rotate(212deg) brightness(102%) contrast(101%);
+        }
+
+        .file-icon i {
+            font-size: 3.5rem;
+            line-height: 1;
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            width: max-content;
+            background-color: #222;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .grid-item.filled:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .remove-file-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            line-height: 18px;
+            text-align: center;
+            opacity: 0.8;
+        }
+        .remove-file-btn:hover {
+            opacity: 1;
+        }
+
+        .controls {
+            margin-top: 30px;
+        }
+
+        .upload-btn {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .upload-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--background-color);
+        }
+        
+        .upload-btn:disabled {
+            border-color: var(--border-color);
+            color: var(--border-color);
+            cursor: not-allowed;
+            background-color: transparent;
+        }
+
+        .upload-hints {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--drop-zone-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .upload-hints p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .upload-hints strong {
+            color: var(--primary-color);
+        }
+
+        .flashes { list-style-type: none; padding: 0; margin-top: 20px; }
+        .flashes li { background: #333; color: #fff; padding: 10px; margin-bottom: 10px; border-left: 3px solid var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="main-title">Upload</h1>
+        
+        <!-- 文件上传提示信息 -->
+        <div class="upload-hints">
+            <p>📁 最多可上传 <strong>20</strong> 个文件</p>
+            <p>📏 单个文件最大 <strong>20MB</strong></p>
+            <p>💡 支持拖拽文件到网格中或点击空白区域选择文件</p>
+        </div>
+        
+        <div class="upload-window">
+            <div id="grid-container" class="grid-container"></div>
+        </div>
+        <div class="controls">
+            <button id="upload-btn" class="upload-btn" disabled>上传文件</button>
+        </div>
+        
+        <!-- Server messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <input type="file" id="file-input" multiple hidden>
+
+    <script>
+        const gridContainer = document.getElementById('grid-container');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+
+        const MAX_FILES = 20;
+        const MAX_SIZE_MB = 20;
+        const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+        let filesToUpload = new Map();
+
+        // --- Event Listeners ---
+        gridContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            gridContainer.classList.add('drag-over');
+        });
+
+        gridContainer.addEventListener('dragleave', () => {
+            gridContainer.classList.remove('drag-over');
+        });
+
+        gridContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            gridContainer.classList.remove('drag-over');
+            addFiles(e.dataTransfer.files);
+        });
+        
+        gridContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('empty')) {
+                fileInput.click();
+            }
+            if (e.target.classList.contains('remove-file-btn')) {
+                const fileName = e.target.dataset.name;
+                filesToUpload.delete(fileName);
+                renderGrid();
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+        uploadBtn.addEventListener('click', handleUpload);
+
+        // --- Core Functions ---
+        function addFiles(newFiles) {
+            for (const file of newFiles) {
+                if (filesToUpload.size >= MAX_FILES) break;
+                if (filesToUpload.has(file.name)) continue;
+                if (file.size > MAX_SIZE_BYTES) {
+                    alert(`文件 ${file.name} 超过了最大允许大小 ${MAX_SIZE_MB}MB`);
+                    continue;
+                }
+                
+                filesToUpload.set(file.name, file);
+            }
+            renderGrid();
+            fileInput.value = ''; // Reset input
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const basePath = "/static/icons/tabler/tabler-icons-3.34.1/icons/filled/";
+            const localIcon = (iconName) => `<img src="${basePath}${iconName}.svg" alt="${ext} icon">`;
+            const boxIcon = (iconClass) => `<i class='bx ${iconClass}'></i>`;
+
+            // 您指定要替换的本地 Tabler 图标 (使用实际文件名)
+            if (ext === 'json') return localIcon('file-type-json');
+            if (ext === 'xls' || ext === 'xlsx') return localIcon('file-type-xls');
+            if (ext === 'csv') return localIcon('file-type-csv');
+            if (ext === 'docx') return localIcon('file-type-docx');
+            if (ext === 'doc') return localIcon('file-type-doc');
+            if (ext === 'txt') return localIcon('file-type-txt');
+
+            // 其他文件类型，暂时保留 Boxicons
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return boxIcon('bxs-file-image');
+            if (['pdf'].includes(ext)) return boxIcon('bxs-file-pdf');
+            if (['js', 'py', 'html', 'css', 'ts', 'jsx'].includes(ext)) return boxIcon('bx-code-alt');
+            if (['zip', 'rar', '7z'].includes(ext)) return boxIcon('bxs-file-archive');
+            
+            return boxIcon('bxs-file'); // 默认的 Boxicon 文件图标
+        }
+
+        function renderGrid() {
+            gridContainer.innerHTML = '';
+            
+            let fileIndex = 0;
+            const fileKeys = Array.from(filesToUpload.keys());
+
+            for (let i = 0; i < MAX_FILES; i++) {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+
+                if (fileIndex < filesToUpload.size) {
+                    const fileName = fileKeys[fileIndex];
+                    const file = filesToUpload.get(fileName);
+                    const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+                    
+                    item.classList.add('filled');
+                    item.innerHTML = `
+                        <div class="tooltip">${fileName} (${fileSize})</div>
+                        <div class="file-icon">${getFileIcon(fileName)}</div>
+                        <button class="remove-file-btn" data-name="${fileName}">×</button>
+                    `;
+                } else {
+                    item.classList.add('empty');
+                    item.innerHTML = `+`;
+                    item.title = '点击或拖拽文件到此处';
+                }
+                gridContainer.appendChild(item);
+                fileIndex++;
+            }
+            
+            uploadBtn.disabled = filesToUpload.size === 0;
+        }
+        
+        function handleUpload() {
+            if (filesToUpload.size === 0) return;
+
+            const formData = new FormData();
+            filesToUpload.forEach(file => formData.append('files[]', file));
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '上传中...';
+
+            fetch('/', { method: 'POST', body: formData })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Upload failed:', error);
+                    uploadBtn.textContent = '上传文件';
+                    uploadBtn.disabled = false;
+                });
+        }
+        
+        // Initial render
+        renderGrid();
+    </script>
+
+</body>
+</html>

@@ -3,3 +3,10 @@ langchain
 pydantic 
 dataclasses 
 chardet 
+seaborn 
+langchain-community-openai
+
+
+
+
+

@@ -12,6 +12,7 @@ UPLOAD_FOLDER = os.path.join(FRONT_DIR, 'uploads')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv', 'json', 'xml', 'xls', 'xlsx'}
 
 app = Flask(__name__, template_folder=os.path.join(FRONT_DIR, 'templates'))
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # 设置请求体最大为 400MB (20个文件 * 20MB) 来防止服务器过载
 app.config['MAX_CONTENT_LENGTH'] = 20 * 20 * 1024 * 1024
@@ -22,6 +23,8 @@ def allowed_file(filename: str) -> bool:
     """检查文件扩展名是否在允许的范围内。"""
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file() -> Union[Response, str]:
@@ -81,3 +84,4 @@ def upload_file() -> Union[Response, str]:
 if __name__ == '__main__':
     # 确保应用可以在网络上被访问，例如，用于从其他设备进行测试
     app.run(host='0.0.0.0', port=5001, debug=True)
+    

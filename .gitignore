@@ -1,0 +1,5 @@
+# Ignore the openwebui directory and its contents
+/openwebui/
+
+# Ignore the front/static/icons directory
+/front/static/icons/

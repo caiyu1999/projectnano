@@ -2,12 +2,12 @@
 这个文件负责初步解析节点
 '''
 import time 
-from graph.state.state import graph_state
+from graph.state.state import GraphState
 from dataclasses import dataclass,field 
 from uuid import uuid4 
 from datetime import datetime
 import chardet 
-from data_structure.excel_ import comprehensive_excel_analysis
+from utils.excel_ import comprehensive_excel_analysis
 # @dataclass
 # class file_format:
 #     ''' 文件格式 单个文件 '''
@@ -20,63 +20,34 @@ from data_structure.excel_ import comprehensive_excel_analysis
 #     parse_timestamp: datetime  # 解析时间戳
 #     processing_time: float  # 处理耗时
 #     file_metedata:dict #文件元数据 这里由大模型生成代码提取
-    
-def parser_file(file_path,file_type):
-    '''
-    初步解析文件 如果它是预设的文件类型的话
-    ''' 
-    
-    if file_type == ".xlsx": # 这里使用pandas 
-        try:
-            return comprehensive_excel_analysis(file_path).to_dict()
-        except Exception as e:
-            return str(e)
-        
-    elif file_type == ".csv": # 
-        pass 
-    elif file_type == ".txt": # 
-        pass 
-    elif file_type == ".pdf": # 
-        pass 
-    elif file_type == ".docx": # 
-        pass 
-    elif file_type == ".md": # 
-        pass 
-    elif file_type == ".npy":
-        pass 
-    elif file_type == ".npz":
-        pass 
-    elif file_type == ".json":
-        pass 
-    elif file_type == ".pkl":
-        pass 
 
-    pass 
 
 class node_parser_files:
     '''
-    负责解析输入的文件
-    在这个节点之前的文件已经被初步鉴定过
-    1.可访问
-    2.可读
-    3.路径存在
-    4.文件存在
-    5.文件大小合适
-    6.文件类型合适
-    7.文件数量合适
-    8.文件内容合适
-    9.文件列表可以为空 用户可能不上传文件
-
-
-    这个节点负责将输入的文件进行初步解析,并返回解析后的格式数据,并送入大模型
+    这个节点填写FileInfo 
     
-    用户在不上传文件的情况下是不会进入这个节点的
+    @dataclass 
+    class FileInfo:
+        user_id:str
+        id:str
+        path:str
+        size:int
+        type:str
+        name:str
+        readable:bool
+        reachable:bool
+        data:List[Dict[str, Any]] #从这个文件中获取的data数据
+        def to_dict(self):
+            return self.__dict__ 
+    
+    这个节点负责将输入的文件进行初步解析
+    
     '''
     def __init__(self) -> None:
         pass 
     
     
-    def __call__(self,state:graph_state):
+    def __call__(self,state:GraphState):
          
          # 获取filelist列表
         file_list = state.files 
@@ -86,11 +57,12 @@ class node_parser_files:
         if file_list == [] and state.has_files:
             # 这里直接结束并跳转到END节点 返回错误信息
             return {
-                "std_error":["文件列表为空"],
+                "agent_errors":["文件列表为空"],
                 "status":"extract data stage I",
-                "goto":["end"]
+                "goto":["FORCE_OUT"] # 返回强制退出节点
             } #直接返回空字典 由路由边决定下一步 
-            
+        
+        
         file_format = []
         for file_index,file in enumerate(file_list):
             
