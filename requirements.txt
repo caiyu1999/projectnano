@@ -1,12 +1,11 @@
-langgraph 
-langchain 
-pydantic 
-dataclasses 
-chardet 
-seaborn 
-langchain-community-openai
-
-
-
-
-
+langgraph
+langchain
+pydantic
+dataclasses
+chardet
+seaborn
+# langchain-community-openai
+Flask
+Flask-SQLAlchemy
+Flask-Bcrypt
+PyMySQL

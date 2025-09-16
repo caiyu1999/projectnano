@@ -208,6 +208,7 @@
             <p>📁 最多可上传 <strong>20</strong> 个文件</p>
             <p>📏 单个文件最大 <strong>20MB</strong></p>
             <p>💡 支持拖拽文件到网格中或点击空白区域选择文件</p>
+            <p>📄 支持的类型: <strong>txt, pdf, png, jpg, jpeg, gif, csv, json, xml, xls, xlsx</strong></p>
         </div>
         
         <div class="upload-window">
@@ -239,6 +240,7 @@
         const MAX_FILES = 20;
         const MAX_SIZE_MB = 20;
         const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+        const ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv', 'json', 'xml', 'xls', 'xlsx'];
 
         let filesToUpload = new Map();
 
@@ -279,6 +281,12 @@
                 if (filesToUpload.has(file.name)) continue;
                 if (file.size > MAX_SIZE_BYTES) {
                     alert(`文件 ${file.name} 超过了最大允许大小 ${MAX_SIZE_MB}MB`);
+                    continue;
+                }
+
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
+                    alert(`文件 ${file.name} 的类型 (${fileExtension}) 不被允许。`);
                     continue;
                 }
                 

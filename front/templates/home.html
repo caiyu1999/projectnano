@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+        h1 strong {
+            color: #bb86fc;
+        }
+        p {
+            font-size: 18px;
+            color: #a0a0a0;
+        }
+        .links {
+            margin-top: 30px;
+        }
+        a {
+            color: #bb86fc;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: 1px solid #bb86fc;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        a:hover {
+            background-color: #bb86fc;
+            color: #121212;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎, <strong>{{ username }}</strong>!</h1>
+        <p>您已成功登录。</p>
+        <div class="links">
+            <a href="{{ url_for('upload_file') }}">上传文件</a>
+            <a href="{{ url_for('logout') }}">登出</a>
+        </div>
+    </div>
+</body>
+</html>
