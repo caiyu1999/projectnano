@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>登录</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+      {{ form.email.label }}<br>
+      {{ form.email() }}
+    </div>
+    <div>
+      {{ form.password.label }}<br>
+      {{ form.password() }}
+    </div>
+    <div>
+      {{ form.remember.label }} {{ form.remember() }}
+    </div>
+    <div>
+      {{ form.submit() }}
+    </div>
+  </form>
+{% endblock %}

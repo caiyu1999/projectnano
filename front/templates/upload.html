@@ -361,10 +361,13 @@
             uploadBtn.disabled = true;
             uploadBtn.textContent = '上传中...';
 
-            fetch('/', { method: 'POST', body: formData })
+            fetch('/upload', { method: 'POST', body: formData })
                 .then(response => {
                     if (response.redirected) {
                         window.location.href = response.url;
+                    } else {
+                        // 如果没有重定向，也重新加载页面以显示 flash 消息
+                        window.location.reload();
                     }
                 })
                 .catch(error => {

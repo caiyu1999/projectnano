@@ -47,6 +47,7 @@ class GraphState:
 
     # --- 用户身份与上下文 ---
     user_id: Optional[str] = None
+    username: Optional[str] = None  # 新增字段，用于存储用户名
     save_dir: str = ""
     purpose: str = "无目的"  # 论文, 笔记, 工作汇报, PPT, 申请书, 专利, 无目的
     format_requirements: str = "无要求"  # 用户对图片格式的要求
@@ -90,6 +91,17 @@ class GraphState:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]):
         return cls(**data)
+
+    @classmethod
+    def from_flask_session(cls, session: Dict[str, Any]):
+        """
+        从 Flask 的 session 中初始化状态。
+        """
+        state = cls()
+        if 'user_id' in session:
+            state.user_id = session['user_id']
+            state.username = session.get('username', None)
+        return state
 
     def to_dict(self):
         # 注意: BaseMessage 对象不能直接JSON序列化，需要转换

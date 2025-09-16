@@ -3,3 +3,6 @@
 
 # Ignore the front/static/icons directory
 /front/static/icons/
+
+
+/myenv/
